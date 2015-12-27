@@ -14,6 +14,8 @@ for n in f2:
     n=n[1:-1]
     movie_tags.append(n)
 
+f=file('Douban_movies.html','w')
+
 #抓取每个标签打开后的网页地址
 class Movie_list:
     def __init__(self):
@@ -33,7 +35,7 @@ class Next_page:
         self.page1=urllib2.urlopen(self.url1+movie_tags[n1]).read()
         self.url2=re.findall('amp.*\d{1,2}',self.page1)
         if self.url2:
-            self.num2=self.url2[-1][13:]
+            self.num2=self.url2[-1][14:]
             if int(self.num2)<50 or int(self.num2)==50:
                 return int(self.num2)
             else:
@@ -51,6 +53,8 @@ class Movie_info:
         pass
     def m(self,n1,n2):
     # 抓取每部电影的电影名称
+
+        global movie_num
         self.movie_name2=[]
         self.movie_name1=re.findall('title="\S{1,}?"',movie_list.request_open(n1,n2))
         for x in range(len(self.movie_name1)-1):
@@ -77,11 +81,13 @@ class Movie_info:
 
     # 抓取每部电影的链接
         self.movie_url2=[]
+        self.movie_id=[]
         self.n=0
         self.movie_url1=re.findall('http://movie.douban.com/subject/\d{1,10}',movie_list.request_open(n1,n2))
         for i in range(len(self.movie_url1)/2):
             self.movie_url2.append(self.movie_url1[2*self.n])
-            self.n+=1   
+            self.movie_id.append(self.movie_url1[2*self.n][-7:])
+            self.n+=1
 
  # 把每部电影的4个信息合并成一个list--self.dic，再依次存到movie这个大list中
         for i in range(len(self.movie_name2)):
@@ -90,13 +96,19 @@ class Movie_info:
             self.dic.append(self.movie_comment2[i])            #评价人数
             self.dic.append(self.movie_rating2[i])             #评分
             self.dic.append(self.movie_url2[i])                #地址
+            self.dic.append(self.movie_id[i])
             if int(self.dic[1])>25000:    #评价人数少于25000的直接放弃
                 movie.append(self.dic)
+                i = self.dic
+                f.write(i[4] + '\t' + i[3]+'\t'+i[0]+'\t'+ i[1]+ '\t' + i[2]+ '\n')
+                #movie_num+=1
+                '''
                 if len(movie)>2:
                     for i in range(len(movie)-1):              #去重
                         if movie[-1][0]==movie[i][0]:   #用电影名字判定是否重复
                             del movie[-1]
                             break
+                '''
                 print '%d/3000'%(len(movie))      #打印进度
             else:
                 continue
@@ -121,9 +133,11 @@ for x in range(len(movie_tags)):          #x代表标签在movie_tags这个list�
 
 
 #删除超过3000部的电影
+'''
 if len(movie)>3000:
     for i in range(len(movie)-3000):
         del movie[-i]
+
 
 #排序
 def comment(s):
@@ -133,6 +147,7 @@ print '开始排序……'
 movie.sort(key = comment, reverse=True)
 endtime4=time.time()
 print '排序完毕，共耗时%.2f'%(endtime4-starttime4)
+
 
 #写到html文件里面
 f=file('Douban_movies.html','w')
@@ -144,6 +159,7 @@ s=1     #s是电影序号
 for i in movie:
     f.write('<p>'+str(s)+'. '+'<a href=\"'+i[3]+'\">'+i[0]+'</a>'+'，共'+i[1]+'人评价，'+'得分：'+i[2]+'分；'+'\n')
     s+=1
+'''
 f.write('</body>')
 f.close()
 
