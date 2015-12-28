@@ -52,9 +52,12 @@ def getMovies(filein, fileout):
     for line in fi01:
         starttime2=time.time()
         line = line.strip()
-        fo01.write(getMoviebyID(line) + '\n')
-        endtime2=time.time()
-        print "抓取第%d页完毕，用时%.2fs"%(i+1,endtime2-starttime2)     #输出抓取每个页面所花费的时间
+        try:
+            fo01.write(getMoviebyID(line) + '\n')
+            endtime2=time.time()
+            print "抓取第%d页完毕，用时%.2fs"%(i+1,endtime2-starttime2)     #输出抓取每个页面所花费的时间
+        except:
+            print "抓取失败"
         time.sleep(2)
         i = i+1
 
